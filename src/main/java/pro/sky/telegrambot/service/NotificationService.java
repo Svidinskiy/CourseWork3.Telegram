@@ -32,7 +32,7 @@ public class NotificationService {
             LocalDateTime dueDateTime = LocalDateTime.parse(dateAndTime, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
 
             NotificationTask task = new NotificationTask();
-            task.setChatId(653215522L);
+            task.setChatId(chatId);
             task.setNotificationText(text);
             task.setNotificationTime(dueDateTime);
 
