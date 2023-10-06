@@ -3,6 +3,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambot.repository.NotificationTaskRepository;
@@ -17,13 +18,16 @@ public class NotificationScheduler {
 
     private final NotificationTaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final TelegramBot telegramBot;
 
-    public NotificationScheduler(NotificationTaskRepository taskRepository, NotificationService notificationService) {
+    @Autowired
+    public NotificationScheduler(NotificationTaskRepository taskRepository, NotificationService notificationService,  TelegramBot telegramBot) {
         this.taskRepository = taskRepository;
         this.notificationService = notificationService;
+        this.telegramBot = telegramBot;
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0/1 * * * *")
     public void checkDueNotifications() {
         LocalDateTime currentMinute = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         List<NotificationTask> dueTasks = taskRepository.findByNotificationTime(currentMinute);
@@ -36,12 +40,10 @@ public class NotificationScheduler {
         String chatId = task.getChatId().toString();
         String messageText = "Время для напоминания: " + task.getNotificationText();
 
-        TelegramBot bot = new TelegramBot("6412658293:AAGGjfUcDKrHfkSatLyv0L0j4OEdddEtCTU");
-
         SendMessage message = new SendMessage(chatId, messageText);
 
         try {
-            SendResponse response = bot.execute(message);
+            SendResponse response = telegramBot.execute(message);
         } catch (Exception e) {
             e.printStackTrace();
         }
